@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Dashboard</title>
+    <style>
+        body { font-family: Arial; margin: 0; background: #f4f6f9; }
+        .navbar { background: #1e3a8a; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .container { padding: 30px; }
+        .card { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .balance { font-size: 24px; color: green; }
+        input, select { padding: 10px; margin-bottom: 10px; width: 220px; border-radius: 5px; border: 1px solid #ccc; }
+        button { padding: 10px 15px; border: none; background: #1e3a8a; color: white; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #162f6f; }
+        a.logout { padding: 10px 15px; background: #e53935; color: white; text-decoration: none; border-radius: 5px; }
+        a.logout:hover { background: #b71c1c; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 10px; border: 1px solid #ccc; text-align: left; }
+        th { background: #1e3a8a; color: white; }
+        .recipient-name { font-style: italic; color: #555; margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <h2>MyBank</h2>
+    <a class="logout" href="/logout">Logout</a>
+</div>
+
+<div class="container">
+
+    <!-- Welcome -->
+    <div class="card">
+        <h3>Welcome, <%= user.username %>!</h3>
+        <p class="balance">Balance: $<%= user.balance %></p>
+        <p>Account Number: <%= user.accountNumber %></p>
+    </div>
+
+    <!-- Transfer Money -->
+    <div class="card">
+        <h3>Transfer Money</h3>
+        <form action="/transfer" method="POST" id="transferForm">
+            <input type="text" name="recipientAccount" id="recipientAccount" placeholder="Recipient Account" required>
+            <p class="recipient-name" id="recipientName"></p>
+            <input type="number" name="amount" placeholder="Amount" required>
+            <br>
+            <button type="submit">Send Money</button>
+        </form>
+    </div>
+
+    <!-- Transaction History -->
+    <div class="card">
+        <h3>Transaction History</h3>
+        <% if (user.transactions.length === 0) { %>
+            <p>No transactions yet.</p>
+        <% } else { %>
+            <table>
+                <tr>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Description</th>
+                    <th>Date</th>
+                </tr>
+                <% user.transactions.forEach(t => { %>
+                <tr>
+                    <td><%= t.type %></td>
+                    <td>$<%= t.amount %></td>
+                    <td><%= t.description %></td>
+                    <td><%= new Date(t.date).toLocaleString() %></td>
+                </tr>
+                <% }) %>
+            </table>
+        <% } %>
+    </div>
+
+</div>
+
+<script>
+    const recipientInput = document.getElementById("recipientAccount")
+    const recipientName = document.getElementById("recipientName")
+
+    recipientInput.addEventListener("input", async () => {
+        const account = recipientInput.value.trim()
+        if (account.length === 0) {
+            recipientName.textContent = ""
+            return
+        }
+
+        try {
+            const res = await fetch(`/user-info/${account}`)
+            const data = await res.json()
+            if (data.success) {
+                recipientName.textContent = `Recipient: ${data.username}`
+            } else {
+                recipientName.textContent = "Account not found"
+            }
+        } catch (err) {
+            recipientName.textContent = "Error checking account"
+        }
+    })
+</script>
+
+</body>
+</html>

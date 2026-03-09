@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div class="container">
+  <h2>Transfer Successful</h2>
+  <p>Your money has been sent successfully.</p>
+
+  <a href="/dashboard">Back to Dashboard</a>
+
+  <!-- Optional check for another account -->
+  <input type="text" id="accountNumber" name="recipientAccount" placeholder="Check another account">
+
+<p id="recipientName"></p>
+
+<script>
+
+document.getElementById("accountNumber").addEventListener("keyup", async function(){
+
+    const acc = this.value
+
+    if(acc.length >= 5){
+
+        const res = await fetch("/user-info/" + acc)
+
+        const data = await res.json()
+
+        if(data.success){
+            document.getElementById("recipientName").innerText =
+            "Recipient: " + data.username
+        }else{
+            document.getElementById("recipientName").innerText =
+            "Account not found"
+        }
+
+    }
+
+})
+
+</script>
+  
+</body>
+</html>

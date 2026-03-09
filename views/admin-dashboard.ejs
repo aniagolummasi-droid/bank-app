@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin Dashboard</title>
+<style>
+body{font-family:Arial;margin:0;background:#f4f6f9;}
+.navbar{background:#1e3a8a;color:white;padding:15px;display:flex;justify-content:space-between;align-items:center;}
+.container{padding:30px;}
+table{width:100%;border-collapse:collapse;margin-top:20px;}
+th,td{padding:10px;border:1px solid #ccc;text-align:left;}
+th{background:#1e3a8a;color:white;}
+button{padding:5px 10px;border:none;background:#1e3a8a;color:white;border-radius:5px;cursor:pointer;}
+button:hover{background:#162f6f;}
+input{padding:5px;width:80px;border-radius:3px;border:1px solid #ccc;}
+.search-box{margin-bottom:20px;}
+.logout{padding:10px 15px;background:#e53935;color:white;text-decoration:none;border-radius:5px;}
+.logout:hover{background:#b71c1c;}
+.freeze{background:#ff9800;}
+.delete{background:#e53935;}
+.status-active{color:green;font-weight:bold;}
+.status-frozen{color:red;font-weight:bold;}
+</style>
+</head>
+<body>
+
+<div class="navbar">
+<h2>Admin Dashboard</h2>
+<a class="logout" href="/admin/logout">Logout</a>
+</div>
+
+<div class="container">
+<h3>Users Management</h3>
+
+<div class="search-box">
+<form method="GET" action="/admin/search">
+<input type="text" name="keyword" placeholder="Search username..." value="<%= keyword || '' %>">
+<button type="submit">Search</button>
+</form>
+</div>
+
+<table>
+<tr>
+<th>Username</th>
+<th>Account Number</th>
+<th>Balance</th>
+<th>Status</th>
+<th>Deposit</th>
+<th>Withdraw</th>
+<th>Freeze</th>
+<th>Delete</th>
+</tr>
+
+<% users.forEach(user => { %>
+<tr>
+<td><%= user.username %></td>
+<td><%= user.accountNumber %></td>
+<td>$<%= user.balance %></td>
+<td>
+<% if(user.frozen){ %>
+<span class="status-frozen">Frozen</span>
+<% } else { %>
+<span class="status-active">Active</span>
+<% } %>
+</td>
+
+<td>
+<form action="/admin/add-money" method="POST">
+<input type="hidden" name="accountNumber" value="<%= user.accountNumber %>">
+<input type="number" name="amount" required>
+<button>Add</button>
+</form>
+</td>
+
+<td>
+<form action="/admin/withdraw" method="POST">
+<input type="hidden" name="accountNumber" value="<%= user.accountNumber %>">
+<input type="number" name="amount" required>
+<button>Withdraw</button>
+</form>
+</td>
+
+<td>
+<form action="/admin/freeze" method="POST">
+<input type="hidden" name="accountNumber" value="<%= user.accountNumber %>">
+<button class="freeze"><%= user.frozen ? 'Unfreeze' : 'Freeze' %></button>
+</form>
+</td>
+
+<td>
+<form action="/admin/delete" method="POST">
+<input type="hidden" name="accountNumber" value="<%= user.accountNumber %>">
+<button class="delete">Delete</button>
+</form>
+</td>
+</tr>
+<% }) %>
+</table>
+
+</div>
+</body>
+</html>
