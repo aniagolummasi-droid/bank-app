@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const session = require("express-session");
 const User = require("./models/user");
+const PORT = process.env.PORT || 3000;
 
 
 const app = express();
@@ -23,7 +24,7 @@ app.use(session({
 // ---------------- DATABASE ----------------
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log("connected to MongoDB Atlas cloud"))
-    .catch(err => console.log(err));
+   .catch(err => console.error("MongoDB connection error:", err));
 
 // ---------------- AUTH MIDDLEWARE ----------------
 function protectUser(req, res, next) {
@@ -285,17 +286,13 @@ app.get("/admin/logout", (req, res) => {
     req.session.destroy();
     res.redirect("/admin/login");
 });
-app.get("/admin/dashboard", protectAdmin, async (req, res) => {
-    const users = await User.find();
-    res.render("admin-dashboard", { users, keyword: "" });
-});
 
-app.get("/admin/search", protectAdmin, async (req, res) => {
-    const keyword = req.query.keyword || "";
-    const users = await User.find({ username: { $regex: keyword, $options: "i" } });
-    res.render("admin-dashboard", { users, keyword });
-});
+
+
 // ---------------- SERVER ----------------
-app.listen(3000, () => {
-    console.log("Server running on http://localhost:3000");
+
+
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });
+   
