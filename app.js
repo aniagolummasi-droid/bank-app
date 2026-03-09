@@ -1,8 +1,10 @@
+require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const session = require("express-session");
 const User = require("./models/user");
+
 
 const app = express();
 
@@ -19,8 +21,8 @@ app.use(session({
 }));
 
 // ---------------- DATABASE ----------------
-mongoose.connect("mongodb://127.0.0.1:27017/bankDB")
-    .then(() => console.log("MongoDB connected"))
+mongoose.connect(process.env.MONGODB_URI)
+    .then(() => console.log("connected to MongoDB Atlas cloud"))
     .catch(err => console.log(err));
 
 // ---------------- AUTH MIDDLEWARE ----------------
