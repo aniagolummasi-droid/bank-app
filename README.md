@@ -70,12 +70,19 @@ A full-stack banking application built with **Node.js**, **Express**, **MongoDB*
    ```
    MONGODB_URI=mongodb://127.0.0.1:27017/bankDB
    PORT=3000
+   
+   # SMTP settings for email notifications (required once you enable them)
+   SMTP_HOST=smtp.example.com
+   SMTP_PORT=587
+   SMTP_USER=you@example.com
+   SMTP_PASS=supersecret
    ```
    
    **For MongoDB Atlas:**
    ```
    MONGODB_URI=mongodb+srv://username:password@cluster0.xxxxx.mongodb.net/bankDB?retryWrites=true&w=majority
    PORT=3000
+   # SMTP settings as above
    ```
 
 4. **Run the server:**

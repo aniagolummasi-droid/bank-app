@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const session = require("express-session");
 const User = require("./models/user");
+const { sendMail } = require("./utils/mailer");
 const PORT = process.env.PORT || 3000;
 
 
@@ -48,12 +49,13 @@ app.get("/register", (req, res) => {
 });
 
 app.post("/register", async (req, res) => {
-    const { username, password } = req.body;
+    const { username, password, email } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
     const accountNumber = Math.floor(1000000000 + Math.random() * 9000000000);
 
     const user = new User({
         username,
+        email,
         password: hashedPassword,
         accountNumber,
         balance: 0,
@@ -99,6 +101,7 @@ app.get("/dashboard", protectUser, async (req, res) => {
 app.post("/transfer", protectUser, async (req, res) => {
     const recipientAccount = Number(req.body.recipientAccount);
     const transferAmount = Number(req.body.amount);
+   
 
     // sanitize both sender and recipient if corrupted
     await User.updateMany(
@@ -134,6 +137,28 @@ app.post("/transfer", protectUser, async (req, res) => {
 
     await sender.save();
     await recipient.save();
+
+    // notify both parties via email if addresses are available
+    try {
+        if (sender.email) {
+            await sendMail({
+                from: '"Bank App" <no-reply@bankapp.com>',
+                to: sender.email,
+                subject: 'Transfer Sent',
+                text: `You sent $${transferAmount} to ${recipient.username} (${recipient.accountNumber}).`,
+            });
+        }
+        if (recipient.email) {
+            await sendMail({
+                from: '"Bank App" <no-reply@bankapp.com>',
+                to: recipient.email,
+                subject: 'Transfer Received',
+                text: `You received $${transferAmount} from ${sender.username} (${sender.accountNumber}).`,
+            });
+        }
+    } catch (emailErr) {
+        console.error('Error sending notification emails:', emailErr);
+    }
 
     res.redirect("/transfer-success");
 });
